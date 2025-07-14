@@ -20,29 +20,50 @@ export default function ProductList() {
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [wishlist, setWishlist] = useState([]);
 
+    const [deferredPrompt, setDeferredPrompt] = useState(null);
+    const [showInstallPopup, setShowInstallPopup] = useState(false);
+
+    // const handleInstallClick = async () => {
+    //     if (deferredPrompt) {
+    //         deferredPrompt.prompt();
+    //         const { outcome } = await deferredPrompt.userChoice;
+    //         if (outcome === 'accepted') {
+    //             console.log('✅ App added to home screen');
+    //         } else {
+    //             console.log('🚫 User dismissed install prompt');
+    //         }
+    //         setDeferredPrompt(null);
+    //         setShowInstallPopup(false);
+    //     }
+    // };
+
     useEffect(() => {
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker
-                .register('/sw.js')
-                .then(reg => console.log('✅ Service Worker registered:', reg.scope))
-                .catch(err => console.log('❌ Service Worker registration failed:', err));
-        }
+        const handleBeforeInstallPrompt = (e) => {
+            e.preventDefault(); // Prevent automatic mini-infobar
+            setDeferredPrompt(e); // Save the event for later
+            setShowInstallPopup(true); // Show our custom install popup
+        };
+
+        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+        return () => {
+            window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        };
     }, []);
 
     const handleInstallClick = async () => {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            console.log('✅ App added to home screen');
-        } else {
-            console.log('🚫 User dismissed install prompt');
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                console.log('User accepted install');
+            } else {
+                console.log('User dismissed install');
+            }
+            setDeferredPrompt(null);
+            setShowInstallPopup(false);
         }
-        setDeferredPrompt(null);
-        setShowInstallPopup(false);
-    }
-};
-
+    };
 
     useEffect(() => {
         const storedUser = localStorage.getItem('userInfo');
@@ -392,6 +413,18 @@ export default function ProductList() {
                     </div>
                 </div>
             )}
+
+            {showInstallPopup && (
+    <div className={styles.installPromptOverlay}>
+        <div className={styles.installPromptBox}>
+            <p>Add this app to your home screen?</p>
+            <div className={styles.buttonGroup}>
+                <button className={styles.cancelBtn} onClick={() => setShowInstallPopup(false)}>Cancel</button>
+                <button className={styles.installBtn} onClick={handleInstallClick}>Install</button>
+            </div>
+        </div>
+    </div>
+)}
         </>
     );
 }

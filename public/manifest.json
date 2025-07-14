@@ -1,7 +1,7 @@
 {
   "name": "Shree Maa Laxmi Cakes",
   "short_name": "Maa Laxmi Cakes",
-  "start_url": "/",
+  "start_url": "/products",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#e91e63",
