@@ -21,6 +21,30 @@ export default function ProductList() {
     const [wishlist, setWishlist] = useState([]);
 
     useEffect(() => {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker
+                .register('/sw.js')
+                .then(reg => console.log('✅ Service Worker registered:', reg.scope))
+                .catch(err => console.log('❌ Service Worker registration failed:', err));
+        }
+    }, []);
+
+    const handleInstallClick = async () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            console.log('✅ App added to home screen');
+        } else {
+            console.log('🚫 User dismissed install prompt');
+        }
+        setDeferredPrompt(null);
+        setShowInstallPopup(false);
+    }
+};
+
+
+    useEffect(() => {
         const storedUser = localStorage.getItem('userInfo');
         if (!storedUser) {
             setShowPopup(true);
@@ -91,7 +115,7 @@ export default function ProductList() {
     const handleOrder = () => setShowOrderSummary(true);
     const handleGoBack = () => setShowOrderSummary(false);
 
-    const handlePopupSubmit = () => {
+    const handlePopupSubmit = async () => {
         if (!userName.trim() || !userMobile.trim()) {
             alert("Please enter valid Name and Mobile Number");
             return;
@@ -101,6 +125,14 @@ export default function ProductList() {
             alert("Please enter a valid 10-digit mobile number.");
             return;
         }
+        const method = 'POST';
+        const url = '/api/users';
+        const payload = { name: userName, mobile: userMobile }
+        fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
 
         localStorage.setItem('userInfo', JSON.stringify({ name: userName, mobile: userMobile }));
         setShowPopup(false);
@@ -135,7 +167,7 @@ export default function ProductList() {
     return (
         <>
             <div className={styles.header}>
-                <div className={styles.shopName}>Shree Maa Laxmi Cakes</div>
+                <div className={styles.shopName}>Shree Mahalaxmi Cakes</div>
                 <div className={styles.searchBoxCont}>
                     <input
                         type="text"
@@ -212,9 +244,9 @@ export default function ProductList() {
                                         <span className={styles.productPrice}>₹{product.price}</span>
                                         <span className={styles.originalPrice}>₹{product.originalPrice}</span>
                                         {product.originalPrice > product.price && (
-                                        <span className={styles.discount}>
-                                            {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
-                                        </span>
+                                            <span className={styles.discount}>
+                                                {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+                                            </span>
                                         )}
                                     </div>
                                     <div className={styles.reviewRow}>
@@ -282,7 +314,7 @@ export default function ProductList() {
                     <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
                         <button onClick={() => setSelectedProduct(null)} className={styles.closeBtn}>×</button>
                         <div className={styles.modalContentWithButton}>
-                            
+
                             <img
                                 src={selectedProduct.productImage}
                                 className={styles.productImageDetails}
@@ -299,13 +331,13 @@ export default function ProductList() {
                                 </div>
                             </div>
                             <div className={styles.priceRowDetails}>
-                                 <span className={styles.productPrice}>₹{selectedProduct.price}</span>
-                                        <span className={styles.originalPrice}>₹{selectedProduct.originalPrice}</span>
-                                        {selectedProduct.originalPrice > selectedProduct.price && (
-                                        <span className={styles.discount}>
-                                            {Math.round(((selectedProduct.originalPrice - selectedProduct.price) / selectedProduct.originalPrice) * 100)}% OFF
-                                        </span>
-                                        )}
+                                <span className={styles.productPrice}>₹{selectedProduct.price}</span>
+                                <span className={styles.originalPrice}>₹{selectedProduct.originalPrice}</span>
+                                {selectedProduct.originalPrice > selectedProduct.price && (
+                                    <span className={styles.discount}>
+                                        {Math.round(((selectedProduct.originalPrice - selectedProduct.price) / selectedProduct.originalPrice) * 100)}% OFF
+                                    </span>
+                                )}
                             </div>
                             <div className={styles.reviewRowDetails}>
                                 <span className={styles.ratingDetails}>{selectedProduct.rating}</span>

@@ -29,7 +29,8 @@ export default function Admin() {
         const res = await fetch('/api/products');
         const result = await res.json();
         // console.log("data", data)
-        setProducts(result?.data);
+
+        setProducts(result?.data.filter((item)=> item.id> 86));
     };
 
     const handleChange = (e) => {
@@ -113,8 +114,8 @@ export default function Admin() {
 
                 <label>
                     Product Image:
-                    <input type="file" accept="image/*" onChange={handleImageUpload} />
-                    {form.productImage && <img src={form.productImage} alt="Preview" width="80" />}
+                    {/* <input type="file" accept="image/*" onChange={handleImageUpload} /> */}
+                    {form.productImage && <img src={form.productImage} alt="Preview" width="120" />}
                 </label>
 
                 <label>

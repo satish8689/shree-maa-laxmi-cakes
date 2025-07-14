@@ -30,8 +30,8 @@ export default function OrderSummary({ selectedProducts = [], setSelectedProduct
         const storedUser = JSON.parse(localStorage.getItem('userInfo')) || {};
         const userName = storedUser.name || 'Unknown User';
         const userContact = storedUser.mobile || 'Unknown Contact';
-        const shopName = "Test Shop";
-        const shopContact = "+91 1234567890";
+        const shopName = "Shree Mahalaxmi Bakery";
+        const shopContact = "+917354000864";
 
         // doc.setFontSize(16);
         // doc.text("Order Summary", 80, 10);
@@ -110,8 +110,10 @@ export default function OrderSummary({ selectedProducts = [], setSelectedProduct
 
         //WhatsApp message with order details
         const productList = selectedProducts
-            .map((p, i) => `${i + 1}. ${p.title} x ${p.quantity}`)
-            .join('\n');
+            .map((p, i) =>
+                `${i + 1}. ${p.title} x ${p.quantity}\nImage: ${p.image}`
+            )
+            .join('\n\n');
 
         const whatsappMessage = encodeURIComponent(
             `*Order Summary*` +
@@ -121,7 +123,8 @@ export default function OrderSummary({ selectedProducts = [], setSelectedProduct
             `\n\n*Total Products:* ${selectedProducts.length}` +
             `\n*Total Amount:* Rs ${totalAmount.toFixed(2)}` +
             `\n\nShop: ${shopName}` +
-            `\n\nShop Contact: ${shopContact}`
+            `\nShop Contact: ${shopContact}` +
+            `\n*Note*: Please call ${shopContact} for order confirmation`
         );
 
         // Open WhatsApp with the message
@@ -146,7 +149,7 @@ export default function OrderSummary({ selectedProducts = [], setSelectedProduct
             createdAt: new Date(),
             deliveryDateTime: fullDateTime.toISOString()
         };
-        console.log("payload", payload)
+        
         const res = await fetch('/api/orders', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

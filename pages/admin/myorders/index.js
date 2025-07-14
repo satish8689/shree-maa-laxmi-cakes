@@ -4,22 +4,44 @@ import styles from './myorder.module.scss';
 import { useEffect, useState } from 'react';
 import { FaTrash } from "react-icons/fa";
 
-
 export default function Admin() {
     const [products, setProducts] = useState([]);
+    const [filteredProducts, setFilteredProducts] = useState([]);
     const [error, setError] = useState('');
+    const [showOldOrders, setShowOldOrders] = useState(false);
 
     useEffect(() => {
         getProducts();
     }, []);
 
+    useEffect(() => {
+        filterProducts();
+    }, [products, showOldOrders]);
+
     const getProducts = async () => {
         const res = await fetch('/api/orders');
         const result = await res.json();
 
-        const sorted = result?.data?.sort((a, b) => new Date(a.deliveryDateTime) - new Date(b.deliveryDateTime));
+        const sorted = result?.data?.sort(
+            (a, b) => new Date(a.deliveryDateTime) - new Date(b.deliveryDateTime)
+        );
         setProducts(sorted);
     };
+
+   const filterProducts = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to start of today
+
+    const filtered = showOldOrders
+        ? products
+        : products.filter(order => {
+            const orderDate = new Date(order.deliveryDateTime);
+            orderDate.setHours(0, 0, 0, 0); // Normalize to midnight
+            return orderDate >= today;
+        });
+
+    setFilteredProducts(filtered);
+};
 
     const handleDelete = async (id) => {
         const res = await fetch('/api/orders', {
@@ -52,12 +74,22 @@ export default function Admin() {
             <h1 className={styles.title}>Manage Orders</h1>
             <p className={styles.error}>{error}</p>
 
+            {/* ✅ Toggle for filtering */}
+            <div className={styles.filterWrapper}>
+                <label>
+                    <input
+                        type="checkbox"
+                        checked={showOldOrders}
+                        onChange={() => setShowOldOrders(!showOldOrders)}
+                    />
+                    Show Old Orders
+                </label>
+            </div>
+
             <table className={styles.table}>
                 <thead>
                     <tr>
-                        {/* <th>ID</th> */}
                         <th>Name/Mobile</th>
-                        {/* <th>Mobile</th> */}
                         <th>Products</th>
                         <th>Status</th>
                         <th>Delivery Date</th>
@@ -65,12 +97,12 @@ export default function Admin() {
                     </tr>
                 </thead>
                 <tbody>
-                    {products.map((order) => (
+                    {filteredProducts.map((order) => (
                         <tr key={order.id}>
-                            {/* <td>{order.id}</td> */}
-                            <td>{order.name} <br/> {order.mobileNumber}
+                            <td>
+                                {order.name}<br />
+                                {order.mobileNumber}
                             </td>
-                            {/* <td></td> */}
                             <td>
                                 {order.order.map((item) => (
                                     <div key={item.id} style={{ marginBottom: '5px' }}>
@@ -89,14 +121,17 @@ export default function Admin() {
                                     <option value="Done">Done</option>
                                 </select>
                             </td>
-                            <td className={styles.ddate}><strong>{new Date(order.deliveryDateTime).toLocaleDateString('en-GB', {
-                                day: '2-digit',
-                                month: 'short',
-                                year: 'numeric'
-                            })}</strong></td>
-                           
+                            <td className={styles.ddate}>
+                                <strong>{new Date(order.deliveryDateTime).toLocaleDateString('en-GB', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: 'numeric'
+                                })}</strong>
+                            </td>
                             <td>
-                                <button onClick={() => handleDelete(order.id)}><FaTrash /></button>
+                                <button onClick={() => handleDelete(order.id)}>
+                                    <FaTrash />
+                                </button>
                             </td>
                         </tr>
                     ))}
