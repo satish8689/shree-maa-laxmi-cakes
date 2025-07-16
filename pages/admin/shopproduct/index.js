@@ -4,6 +4,7 @@ import styles from './shopproduct.module.scss';
 import { useEffect, useState } from 'react';
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { useRouter } from 'next/navigation';
+import CryptoJS from 'crypto-js';
 
 export default function Admin() {
     const [products, setProducts] = useState([]);
@@ -29,8 +30,7 @@ export default function Admin() {
         const res = await fetch('/api/products');
         const result = await res.json();
         // console.log("data", data)
-
-        setProducts(result?.data.filter((item)=> item.id> 86));
+        setProducts(result?.data);
     };
 
     const handleChange = (e) => {

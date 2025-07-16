@@ -111,7 +111,7 @@ export default function OrderSummary({ selectedProducts = [], setSelectedProduct
         //WhatsApp message with order details
         const productList = selectedProducts
             .map((p, i) =>
-                `${i + 1}. ${p.title} x ${p.quantity}\nImage:'https://shree-maa-laxmi-cakes.vercel.app'+ ${p.productImage}`
+                `${i + 1}. ${p.title} x ${p.quantity}\nImage:https://shree-maa-laxmi-cakes.vercel.app${p.productImage}`
             )
             .join('\n\n');
 
