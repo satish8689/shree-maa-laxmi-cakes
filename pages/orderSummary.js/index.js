@@ -24,7 +24,7 @@ export default function OrderSummary({ selectedProducts = [], setSelectedProduct
         const updatedProducts = selectedProducts.filter(product => product.id !== id);
         setSelectedProducts(updatedProducts);
     };
-    console.log("selectedProducts", selectedProducts)
+    
     const generateAndStorePDF = async () => {
         const doc = new jsPDF();
         const storedUser = JSON.parse(localStorage.getItem('userInfo')) || {};
@@ -111,7 +111,7 @@ export default function OrderSummary({ selectedProducts = [], setSelectedProduct
         //WhatsApp message with order details
         const productList = selectedProducts
             .map((p, i) =>
-                `${i + 1}. ${p.title} x ${p.quantity}\nImage: ${p.image}`
+                `${i + 1}. ${p.title} x ${p.quantity}\nImage:'https://shree-maa-laxmi-cakes.vercel.app'+ ${p.productImage}`
             )
             .join('\n\n');
 
@@ -124,11 +124,11 @@ export default function OrderSummary({ selectedProducts = [], setSelectedProduct
             `\n*Total Amount:* Rs ${totalAmount.toFixed(2)}` +
             `\n\nShop: ${shopName}` +
             `\nShop Contact: ${shopContact}` +
-            `\n*Note*: Please call ${shopContact} for order confirmation`
+            `\n*नोट*:  कृपया ऑर्डर की पुष्टि के लिए ${shopContact} पर कॉल करें`
         );
 
         // Open WhatsApp with the message
-        window.open(`https://wa.me/+918602148689?text=${whatsappMessage}`, "_blank");
+        window.open(`https://wa.me/+917354000864?text=${whatsappMessage}`, "_blank");
     };
 
     const placeOrder = async () => {
